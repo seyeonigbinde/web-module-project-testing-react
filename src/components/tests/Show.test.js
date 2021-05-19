@@ -22,7 +22,7 @@ test('renders testShow and no selected Season without errors', ()=>{
 });
 
 test('renders Loading component when prop show is null', () => {
-    render(<Show show={null} />);
+    render(<Show show={null}  />);
 
     const loading = screen.getByText(/Fetching data/i);
 
@@ -30,7 +30,7 @@ test('renders Loading component when prop show is null', () => {
 });
 
 test('renders same number of options seasons are passed in', ()=>{
-    render(<Show show={testShow}  selectedSeason="none"/>);
+    render(<Show show={testShow}  selectedSeason={"none"}/>);
 
     const options = screen.queryAllByTestId("season-option");
 
@@ -41,30 +41,23 @@ test('renders same number of options seasons are passed in', ()=>{
 test('handleSelect is called when an season is selected', () => {
     const handleSelect = jest.fn();
 
-    //Arrange: render our component isFetchingData = false
-    render(<Show show={testShow}  handleSelect={handleSelect} selectedSeason="none"/>);
+    render(<Show show={testShow}  handleSelect={handleSelect} selectedSeason={"none"}/>);
 
-    //Act: click button
-    const select = screen.queryAllByLabelText("seasons");
-    userEvent.click(select);
+    const select = screen.queryByLabelText(/Select A Season/i);
+    userEvent.selectOptions(select, ['1']);    
 
-    //Assert: check if getData was called once
-    expect(handleSelect.mock.calls.length === 4).toBeTruthy();
-    expect(handleSelect.mock.calls.length).toBe(4);
-    expect(handleSelect.mock.calls).toHaveLength(4);
-    expect(handleSelect).toBeCalledTimes(4);
+    expect(handleSelect).toBeCalled();
 
 });
 
 test('component renders when no seasons are selected and when rerenders with a season passed in', () => {
-    const { rerender } = render(<Show selectedSeason={"none"}/>);
-    let season = screen.queryAllByTestId("season-option");
-    expect(season).toHaveLength(0);
+    const { rerender } = render(<Show show={testShow} selectedSeason={"none"}/>);
+    let episodes = screen.queryByTestId("episodes-container");
+    expect(episodes).not.toBeInTheDocument();
 
-    rerender(<Show selectedSeason={"Season 1"}/>);
-    season = screen.queryAllByTestId("season-option");
-    expect(season).toHaveLength(1);
-    // expect(season).toBeInTheDocument();
+    rerender(<Show  show={testShow} selectedSeason={1}/>);
+    episodes = screen.queryByTestId("episodes-container");
+    expect(episodes).toBeInTheDocument();
 
 });
 

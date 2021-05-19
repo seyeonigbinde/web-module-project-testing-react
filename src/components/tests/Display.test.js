@@ -1,19 +1,21 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 
 import Display from '../Display';
-// import { fetchShow } from '../../api/fetchShow';
-// jest.mock('./api/fetchShow');
+import mockFetchShow from '../../api/fetchShow';
+jest.mock('../../api/fetchShow');
 
 const testEpisode = {
-    id:1,
-    name: "",
-    image: "http://static.tvmaze.com/uploads/images/medium_landscape/67/168918.jpg",
-    season: 1,
-    number: 1,
-    summary: "",
-    runtime: 1
+    
+    name: "Chapter One: The Vanishing of Will Byers",
+    summary: "A young boy mysteriously disappears, and his panicked mother demands that the police find him. Meanwhile, the boy's friends conduct their own search, and meet a mysterious girl in the forest.",
+    seasons:[
+        {id:0, name: "Season 1", episodes: []}, 
+        {id:1, name: "Season 2", episodes: []}, 
+        {id:2, name: "Season 3", episodes: []}, 
+        {id:3, name: "Season 4", episodes: []}
+      ]
 }
 
 // test('renders without errors', ()=> {
@@ -25,59 +27,46 @@ test("renders without error", ()=>{
     render(<Display/>);
 });
 
-// test("renders we are fetching data when isFetchingData === true", ()=>{
-//     //Arrange: Render our component
-//     render(<MissionForm isFetchingData={true}/>);
 
-//     //Act: Get DOM with we are fetching data
-//     const value = screen.queryByText(/we are fetching data/i);
-    
-//     //Assert: see that value actually exists
-//     expect(value).toBeInTheDocument();
-//     expect(value).toBeTruthy();
-//     expect(value).toHaveTextContent(/we are fetching data/i);
-//     expect(value).not.toBeNull();
-// });
+test("Test that when the fetch button is pressed, the show component will display", async ()=>{
+    mockFetchShow.mockResolvedValueOnce(testEpisode);
+    render(<Display episode={testEpisode}/>);
 
-// test("renders button when isFetchingData === false", ()=>{
-//     render(<MissionForm isFetchingData={false}/>);
+    const button = screen.getByRole("button");
+    userEvent.click(button);
 
-//     const button = screen.queryByRole("button");
-//     const value = screen.queryByText(/we are fetching data/i);
+    const value = await screen.findByTestId("show-container");
 
-//     expect(button).toBeInTheDocument();
-//     expect(value).not.toBeInTheDocument();
-// });
+    expect(value).toBeInTheDocument();
 
-test("Test that when the fetch button is pressed, the show component will display", ()=>{
-    // render(<App/>);
-    // fetchShow.mockResolvedValueOnce({
-    //     data:[
-    //         {
-    //             mission_id: "1",
-    //             mission_name: "mission 1"
-    //         },
-    //         {
-    //             mission_id: "2",
-    //             mission_name: "mission 2"
-    //         }
-    //     ]
-    // });
+});
 
-    // //Act: Find and push our button
-    // const button = screen.getByRole("button");
-    // userEvent.click(button);
+test("Test that when the fetch button is pressed, the amount of select options rendered is equal to the amount of seasons in your test data.", async ()=>{
+    mockFetchShow.mockResolvedValueOnce(testEpisode);
+    render(<Display episode={testEpisode}/>);
 
-    // //Assert: Find 10 mission elements
-    // // await find method
-    // // const missions = await screen.findAllByTestId("mission");
-    // // expect(missions.length).toBe(10); 
+    const button = screen.getByRole("button");
+    userEvent.click(button);
 
-    // // waitFor method
-    // await waitFor(()=>{
-    //     const testEpisode = screen.queryAllByTestId("mission");
-    //     expect(testEpisode.length).toBe(2);
-    // });
+    await waitFor(()=>{
+        const seasonOptions = screen.queryAllByTestId("season-option");
+        expect(seasonOptions).toHaveLength(4);
+    });
+});
+
+test("Test that when the fetch button is pressed, this function is called", async ()=>{
+    mockFetchShow.mockResolvedValueOnce(testEpisode);
+    const displayFunc = jest.fn()
+
+    render(<Display displayFunc={displayFunc}/>);
+
+    const button = screen.getByRole("button");
+    userEvent.click(button);
+
+    await waitFor(()=>{
+        expect(displayFunc).toHaveBeenCalled();
+    });
+
 });
 
 

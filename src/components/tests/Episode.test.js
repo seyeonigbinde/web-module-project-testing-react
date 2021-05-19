@@ -44,7 +44,7 @@ test("renders default image when image is not defined", ()=>{
 
     const img = screen.getByAltText("./stranger_things.png")
 
-    expect(img).toBeInTheDocument();
+    expect(img).toBeInTheDocument( );
 });
 
 
