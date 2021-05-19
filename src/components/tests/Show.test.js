@@ -6,21 +6,59 @@ import Show from './../Show';
 
 const testShow = {
     //add in approprate test data structure here.
+    name: "Chapter One: The Vanishing of Will Byers",
+    summary: "A young boy mysteriously disappears, and his panicked mother demands that the police find him. Meanwhile, the boy's friends conduct their own search, and meet a mysterious girl in the forest.",
+    seasons:[
+        {id:0, name: "Season 1", episodes: []}, 
+        {id:1, name: "Season 2", episodes: []}, 
+        {id:2, name: "Season 3", episodes: []}, 
+        {id:3, name: "Season 4", episodes: []}
+      ]
 }
 
 test('renders testShow and no selected Season without errors', ()=>{
+    render(<Show show={testShow} selectedSeason={"none"}/>);
+
 });
 
 test('renders Loading component when prop show is null', () => {
+    render(<Show show={null}  />);
+
+    const loading = screen.getByText(/Fetching data/i);
+
+    expect(loading).toBeInTheDocument();
 });
 
 test('renders same number of options seasons are passed in', ()=>{
+    render(<Show show={testShow}  selectedSeason={"none"}/>);
+
+    const options = screen.queryAllByTestId("season-option");
+
+    expect(options).toHaveLength(4);
+
 });
 
 test('handleSelect is called when an season is selected', () => {
+    const handleSelect = jest.fn();
+
+    render(<Show show={testShow}  handleSelect={handleSelect} selectedSeason={"none"}/>);
+
+    const select = screen.queryByLabelText(/Select A Season/i);
+    userEvent.selectOptions(select, ['1']);    
+
+    expect(handleSelect).toBeCalled();
+
 });
 
 test('component renders when no seasons are selected and when rerenders with a season passed in', () => {
+    const { rerender } = render(<Show show={testShow} selectedSeason={"none"}/>);
+    let episodes = screen.queryByTestId("episodes-container");
+    expect(episodes).not.toBeInTheDocument();
+
+    rerender(<Show  show={testShow} selectedSeason={1}/>);
+    episodes = screen.queryByTestId("episodes-container");
+    expect(episodes).toBeInTheDocument();
+
 });
 
 //Tasks:
